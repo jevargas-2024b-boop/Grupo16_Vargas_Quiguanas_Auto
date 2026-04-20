@@ -1,0 +1,141 @@
+{
+  "name": "Tool-Guardar_Notion",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "e9da2b46-f56d-4e06-93df-f112ef3fbd20",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -16,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parsear los datos de la factura que envía Claude\nconst input = $input.first().json.query;\nlet data;\n\ntry {\n  data = JSON.parse(input);\n} catch (e) {\n  // Si no es JSON válido, intentar extraer datos del texto\n  data = {\n    proveedor: input,\n    numero_factura: \"No especificado\",\n    fecha: new Date().toISOString().split('T')[0],\n    subtotal: 0,\n    impuestos: 0,\n    total: 0,\n    moneda: \"COP\",\n    items: \"No especificado\",\n    estado: \"Pendiente\"\n  };\n}\n\nreturn [{\n  json: {\n    proveedor: data.proveedor || \"No especificado\",\n    numero_factura: data.numero_factura || \"No especificado\",\n    fecha: data.fecha || new Date().toISOString().split('T')[0],\n    subtotal: parseFloat(data.subtotal) || 0,\n    impuestos: parseFloat(data.impuestos) || 0,\n    total: parseFloat(data.total) || 0,\n    moneda: data.moneda || \"COP\",\n    items: typeof data.items === 'object' \n      ? JSON.stringify(data.items) \n      : String(data.items || \"No especificado\"),\n    estado: data.estado || \"Pendiente\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        64
+      ],
+      "id": "fc3c4c4a-a72e-4f92-b168-fb327e544e13",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "33ddf010-929f-8076-8382-f0da01d8a2cb",
+          "mode": "list",
+          "cachedResultName": "33ddf010-929f-8076-8382-f0da01d8a2cb",
+          "cachedResultUrl": "https://www.notion.so/33ddf010929f80768382f0da01d8a2cb"
+        },
+        "title": "={{ $json.proveedor }}",
+        "simple": "=",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "proveedor |title",
+              "title": "={{ $json.proveedor }}"
+            },
+            {
+              "key": "Fecha factura|date",
+              "includeTime": false,
+              "date": "={{ $json.fecha }}"
+            },
+            {
+              "key": "numero de factura|rich_text",
+              "textContent": "={{ $json.numero_factura }}"
+            },
+            {
+              "key": "Subtotal|number",
+              "numberValue": "={{ $json.subtotal }}"
+            },
+            {
+              "key": "Impuestos|number",
+              "numberValue": "={{ $json.impuestos }}"
+            },
+            {
+              "key": "Total|number",
+              "numberValue": "={{ $json.total }}"
+            },
+            {
+              "key": "Moneda|select",
+              "selectValue": "={{ $json.moneda }}"
+            },
+            {
+              "key": "Items|rich_text",
+              "textContent": "={{ $json.items }}"
+            },
+            {
+              "key": "Estado|select",
+              "selectValue": "={{ $json.estado }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        16
+      ],
+      "id": "c6041d4d-90b0-46fc-b411-e001fcbc240f",
+      "name": "Create a database page"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "{\"proveedor\": \"Corhuila Insumos\", \"numero_factura\": \"FACT-2026\", \"fecha\": \"2026-04-10\", \"total\": 85000, \"moneda\": \"COP\", \"estado\": \"Pendiente\"}"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8ae072b8-0896-4595-a09b-1ac29122cfdf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe34990be35e9c617db7253ca70206a0e87c7812bda4a59d245ba0c9adb36009"
+  },
+  "id": "OReKIUbhEHGWlsrD",
+  "tags": []
+}

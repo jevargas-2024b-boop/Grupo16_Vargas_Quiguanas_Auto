@@ -1,0 +1,176 @@
+{
+  "name": "Tool-Analizar_factura",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "913f26b3-4ccc-4783-b136-5c33c09b75a4",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -160,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.query }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "factura.pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        112,
+        112
+      ],
+      "id": "c6143c23-2e56-47d0-840a-ee8f4a72157f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "factura.pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        96
+      ],
+      "id": "684e6177-7f6d-401d-a1f8-6943c7e3ad21",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-4-5-20250929",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-5-20250929"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un experto en análisis de facturas y documentos contables. \nTu tarea es extraer datos estructurados de facturas.\n\nSIEMPRE responde en formato JSON válido con esta estructura exacta:\n{\n  \"proveedor\": \"nombre del proveedor o empresa emisora\",\n  \"numero_factura\": \"número o código de la factura\",\n  \"fecha\": \"YYYY-MM-DD\",\n  \"items\": [\n    {\"descripcion\": \"...\", \"cantidad\": 0, \"precio_unitario\": 0, \"subtotal\": 0}\n  ],\n  \"subtotal\": 0,\n  \"impuestos\": 0,\n  \"total\": 0,\n  \"moneda\": \"COP o USD o EUR\",\n  \"notas\": \"cualquier observación relevante\"\n}\n\nSi algún campo no está claro en el documento, usa \"No especificado\" para texto o 0 para números.\nResponde SOLO con el JSON, sin texto adicional."
+            },
+            {
+              "content": "=Analiza el siguiente texto extraído de una factura y extrae todos los datos estructurados:\n\n{{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 2000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        560,
+        16
+      ],
+      "id": "860a4e72-4101-4fff-abe0-b0fc42f0c5c8",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7954e721-8991-4f98-83cc-fa103b299f3c",
+              "name": "response",
+              "value": "=={{ $json.message.content[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        64
+      ],
+      "id": "673146f8-d8ce-46cd-b52f-eed740ea709c",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d24cd08c-e3d9-4335-8dea-e0f9f1e4f2b5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe34990be35e9c617db7253ca70206a0e87c7812bda4a59d245ba0c9adb36009"
+  },
+  "id": "d7oDIiIickSAKgKy",
+  "tags": []
+}

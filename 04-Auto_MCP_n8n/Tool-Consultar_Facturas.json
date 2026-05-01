@@ -1,0 +1,129 @@
+{
+  "name": "Tool-Consultar_Facturas",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "4525cddb-1bc3-43a6-b4a1-3c6beeb12060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -112,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        32
+      ],
+      "id": "6e2d2e39-6888-4d42-a787-ec5699a4318b",
+      "name": "Get many databases"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1766fa05-6d13-4c53-9d1f-6af569866e5a",
+              "leftValue": "=={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        288,
+        32
+      ],
+      "id": "fb685655-0067-41cb-bc06-e308cb53931e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst facturas = items.map(item => {\n  // Accedemos de forma segura a las propiedades\n  const props = item.json.properties || {};\n  \n  return {\n    proveedor: props[\"numero de factura\"]?.title?.[0]?.plain_text || \"N/A\",\n    fecha: props[\"Fecha factura\"]?.date?.start || \"N/A\",\n    subtotal: props[\"Subtotal\"]?.number || 0,\n    impuestos: props[\"Impuestos\"]?.number || 0,\n    total: props[\"Total\"]?.number || 0,\n    moneda: props[\"Moneda\"]?.select?.name || \"COP\",\n    estado: props[\"Estado\"]?.select?.name || \"N/A\"\n  };\n});\n\nconst resumen = {\n  total_facturas: facturas.length,\n  suma_total: facturas.reduce((acc, f) => acc + f.total, 0),\n  facturas: facturas\n};\n\nreturn [{\n  json: {\n    response: JSON.stringify(resumen, null, 2)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        16
+      ],
+      "id": "9875d8fa-eee8-48fe-8f85-1521de7a47a6",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get many databases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many databases": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "02b18f6c-74aa-4c1a-832a-e028397f07f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe34990be35e9c617db7253ca70206a0e87c7812bda4a59d245ba0c9adb36009"
+  },
+  "id": "quD2XVzAVnmCmLMl",
+  "tags": []
+}

@@ -1,0 +1,71 @@
+{
+  "name": "Tool-Notificar_Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4dfd6b3f-a8e8-4569-9b2f-8f0b8fdeacc6",
+              "name": " mensaje",
+              "value": "=={{ \"📄 *Notificación de Facturas n8n*\\n\\n\" + $json.query }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        16
+      ],
+      "id": "1772b246-fdaa-451e-a046-ddce765485c2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "7912478824",
+        "text": "=={{ $json.mensaje }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        16
+      ],
+      "id": "2caec26d-07e3-459b-9282-c39a5acf7cf2",
+      "name": "Send a text message",
+      "webhookId": "63683891-9cfb-44dc-b5df-d981e9173cbd"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "632c3a2e-4f69-4d4a-adc7-788783e15b47",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe34990be35e9c617db7253ca70206a0e87c7812bda4a59d245ba0c9adb36009"
+  },
+  "id": "ixxsCH1yFmGct0Wp",
+  "tags": []
+}
